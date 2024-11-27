@@ -1,0 +1,34 @@
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: wasm
+handler: wasm
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasi-demo
+  labels:
+    app: wasi-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasi-demo
+  template:
+    metadata:
+      labels:
+        app: wasi-demo
+    spec:
+      runtimeClassName: wasm
+      containers:
+      - name: oci-image
+        image: ghcr.io/z63d/sleep-wasm-ociimage:latest
+      - name: wasm-oci-artifact
+        image: ghcr.io/z63d/sleep-wasm-wasmociartifact:latest
+        command: ['sleep-wasm.wasm']
+      - name: nginx
+        image: docker.io/nginx:latest
+        ports:
+          - containerPort: 80
